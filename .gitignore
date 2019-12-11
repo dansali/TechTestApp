@@ -1,0 +1,8 @@
+aws
+aws.pub
+credentials
+*.tfstate
+*.backup
+.DS_Store
+.terraform
+*.ini
