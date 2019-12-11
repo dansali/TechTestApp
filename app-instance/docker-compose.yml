@@ -25,6 +25,7 @@ services:
 
     volumes:
       - ./app/build.sh:/tmp/build.sh
+      - ./app/conf.tmpl:/tmp/conf.toml
 
     command: bash -c "chmod +x /tmp/build.sh && /bin/bash /tmp/build.sh"
 # Network configuration
