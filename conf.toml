@@ -1,0 +1,7 @@
+"DbUser" = "ec2-user"
+"DbPassword" = "password"
+"DbName" = "ec2-user"
+"DbPort" = "5432"
+"DbHost" = "localhost"
+"ListenHost" = "0.0.0.0"
+"ListenPort" = "3000"

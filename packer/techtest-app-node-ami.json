@@ -1,0 +1,63 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "ap-southeast-2",
+      "source_ami_filter": {
+        "filters": {
+          "tag:TechTestApp": "Clean-Updated"
+        },
+        "owners": ["self"],
+        "most_recent": true
+      },
+      "instance_type": "m4.xlarge",
+      "ssh_username": "ec2-user",
+      "ami_name": "techtest-app-node-{{isotime \"2006-01-02T1504\"}}",
+      "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/sda1",
+          "volume_size": 50,
+          "volume_type": "gp2",
+          "delete_on_termination": true
+        }
+      ],
+      "tags": {
+        "TechTestApp": "App",
+        "Amazon_AMI_Management_Identifier": "techtest-app-node"
+      }
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo yum -y install git yum-utils device-mapper-persistent-data lvm2",
+        "sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo",
+        "sudo yum -y install docker-ce",
+        "sudo usermod -aG docker $(whoami)",
+        "sudo systemctl enable docker.service",
+        "sudo yum -y install rh-python36",
+        "sudo yum -y groupinstall 'Development Tools'",
+        "sudo scl enable rh-python36 bash",
+        "sudo yum -y install python36-setuptools",
+        "sudo easy_install-3.6 pip",
+        "sudo pip3 install docker-compose"
+      ]
+    }
+  ],
+
+  "post-processors": [
+    {
+      "type": "manifest",
+      "output": "techtest-app-node-output.json"
+    },
+
+    {
+      "type": "amazon-ami-management",
+      "regions": ["ap-southeast-2"],
+      "identifier": "techtest-app-node",
+      "keep_releases": "3"
+    }
+  ]
+}

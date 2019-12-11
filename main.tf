@@ -2,20 +2,15 @@ terraform {
   required_version = ">= 0.12"
 }
 
-variable "ami" {
-  type = string
-  default = "ami-04c87826f51872f21"
-}
-
 provider "aws" {
   version                  = "~> 2.41"
   region                   = "ap-southeast-2"
-  shared_credentials_file  = "credentials"
+  shared_credentials_file  = "credentials.ini"
 }
 
 resource "aws_key_pair" "main" {
   key_name   = "techtestapp-main"
-  public_key = file("aws.pub")
+  public_key = file("secret/aws.pub")
 }
 
 data "aws_vpc" "main" {
@@ -89,9 +84,19 @@ resource "aws_security_group" "main" {
   }
 }
 
+data "aws_ami" "main" {
+  most_recent      = true
+  owners           = ["self"]
+
+  filter {
+    name           = "tag:TechTestApp"
+    values         = ["App"]
+  }
+}
+
 resource "aws_instance" "main" {
-  ami             = var.ami
-  instance_type   = "t2.medium"
+  ami                       = data.aws_ami.main.id
+  instance_type             = "t2.medium"
 
   key_name                  = aws_key_pair.main.key_name
   subnet_id                 = sort(data.aws_subnet_ids.main.ids)[0]
@@ -108,17 +113,17 @@ resource "aws_instance" "main" {
   }
 
   connection {
-    host = self.public_ip # lol why is this needed
-    private_key = file("aws")
+    host        = self.public_ip # lol why is this needed
+    private_key = file("secret/aws")
     user        = "ec2-user"
   }
 
   provisioner "local-exec" {
     command = <<EOT
-      >main.ini;
-      echo "[main]" | tee -a main.ini;
-      echo "${aws_instance.main.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=aws" | tee -a main.ini;
-      ansible-playbook -u ec2-user --private-key aws -i main.ini ansible.yaml
+      >ansible.ini;
+      echo "[ansible]" | tee -a ansible.ini;
+      echo "${aws_instance.main.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=aws" | tee -a ansible.ini;
+      ansible-playbook -u ec2-user --private-key secret/aws -i ansible.ini ansible.yaml
     EOT
   }
 }
@@ -156,6 +161,12 @@ resource "aws_elb" "main-elb" {
   }
 }
 
+#resource "aws_autoscaling_attachment" "main" {
+#  autoscaling_group_name = aws_autoscaling_group.main.id
+#  elb                    = aws_elb.main.id
+#}
+
+# Spit out the url for the LB
 output "load-balancer-url" {
   value = aws_elb.main-elb.dns_name
 }

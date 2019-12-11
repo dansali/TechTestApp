@@ -6,3 +6,5 @@ credentials
 .DS_Store
 .terraform
 *.ini
+app-instance/app/output/*
+*output.json

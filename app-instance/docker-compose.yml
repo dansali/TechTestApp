@@ -1,0 +1,33 @@
+# Latest and greatest version :)
+version: "3.7"
+services:
+  # Reverse proxy webserver
+  nginx:
+    image: nginx
+    restart: always
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      # Only nginx will have frontend accessibility
+      - frontend
+      - backend
+    ports:
+      # App
+      - "80:80"
+
+  app:
+    image: golang:latest
+    restart: always
+    networks:
+        - backend
+    ports:
+        - "3000:3000"
+
+    volumes:
+      - ./app/build.sh:/tmp/build.sh
+
+    command: bash -c "chmod +x /tmp/build.sh && /bin/bash /tmp/build.sh"
+# Network configuration
+networks:
+    frontend:
+    backend:
