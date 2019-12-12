@@ -169,6 +169,10 @@ resource "aws_instance" "main" {
   }
 }
 
+output "ec2-instance-public-ip" {
+  value = aws_instance.main.public_ip
+}
+
 resource "null_resource" "local-conf-file" {
   triggers = {
     template = data.template_file.techtestapp-config.rendered
