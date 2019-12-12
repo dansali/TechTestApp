@@ -5,7 +5,7 @@ credentials
 *.backup
 .DS_Store
 .terraform
-ansible.ini
+*.ini
 app-instance/app/output/*
 app-instance/app/conf.toml
 *output.json
