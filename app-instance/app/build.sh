@@ -10,7 +10,7 @@ export PATH=$PATH:$GOPATH/bin
 # Check if dep doesn't exist
 if ! [ -x "$(command -v dep)" ]; then
 	#curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-  go get -u github.com/golang/dep/cmd/dep
+	go get -u github.com/golang/dep/cmd/dep
 fi
 
 go get -d github.com/vibrato/VibratoTechTest
@@ -29,4 +29,5 @@ cd output
 rm -rf conf.toml
 ln -s /tmp/app-instance/app/conf.toml conf.toml
 
+./TechTestApp updatedb -s
 ./TechTestApp serve

@@ -76,6 +76,14 @@ resource "aws_security_group" "main" {
   }
 
   egress {
+      from_port = 5432
+      to_port = 5432
+      protocol = "tcp"
+      cidr_blocks = [data.aws_vpc.main.cidr_block]
+      description = "postgres in private"
+  }
+
+  egress {
       from_port = 3000
       to_port = 3000
       protocol = "tcp"
@@ -119,6 +127,7 @@ data "aws_ami" "main" {
 }
 
 resource "aws_instance" "main" {
+  depends_on                = [null_resource.local-conf-file]
   ami                       = data.aws_ami.main.id
   instance_type             = "m4.xlarge"
 
@@ -184,7 +193,7 @@ resource "aws_elb" "techtestapp-elb" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    target              = "HTTP:8080/"
+    target              = "HTTP:8080/healthcheck/"
     interval            = 5
   }
 
@@ -214,12 +223,14 @@ output "load-balancer-url" {
 }
 
 resource "aws_db_instance" "main" {
-  final_snapshot_identifier = "${var.env}techtestappdb"
+  #final_snapshot_identifier = "${var.env}techtestappdb"
+  skip_final_snapshot = true
+  vpc_security_group_ids    = [aws_security_group.main.id]
   allocated_storage = 20
   storage_type      = "gp2"
   engine            = "postgres"
   instance_class    = "db.t2.medium"
-  deletion_protection = true
+  #deletion_protection = true
   name              = "${var.env}techtestappdb"
   username          = var.dbusername
   password          = var.dbpassword
@@ -253,7 +264,12 @@ variable "dbpassword" {
   description = "Database password"
 }
 
-variable "instance_count" {
+/*variable "instance_count" {
   type = number
   description = "Scale instances"
+}*/
+
+variable "dataname" {
+  type = string
+  description = "Bucket/Dynamodb names"
 }

@@ -7,7 +7,7 @@ provider "aws" {
 # Let's create our bucket to store our terraform state
 # We are encrypting the bucket to hopefully prevent leakage
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "dansali-techtestapp-terraform-state"
+  bucket = var.dataname
   acl = "private"
 
   versioning {
@@ -15,7 +15,7 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   server_side_encryption_configuration {
@@ -29,7 +29,7 @@ resource "aws_s3_bucket" "terraform_state" {
 
 # Creating a dynamodb table to lock/unlock the state for safety. Don't be running the same terraform script on 2 pcs at once :(
 resource "aws_dynamodb_table" "terraform_state_lock" {
-  name           = "dansali-techtestapp-terraform-state"
+  name           = var.dataname
   read_capacity  = 1
   write_capacity = 1
   hash_key       = "LockID"
@@ -38,4 +38,25 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
     name = "LockID"
     type = "S"
   }
+}
+
+variable "dataname" {
+  type = string
+  description = "Bucket/Dynamodb names"
+}
+
+# stop warnings about variables not being used :(
+variable "env" {
+  type = string
+  description = "Environment!"
+}
+
+variable "dbusername" {
+  type = string
+  description = "Database username"
+}
+
+variable "dbpassword" {
+  type = string
+  description = "Database password"
 }
