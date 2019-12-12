@@ -1,5 +1,13 @@
 terraform {
   required_version = ">= 0.12"
+
+  backend "s3" {
+    region         = "ap-southeast-2"
+    bucket         = "dansali-techtestapp-terraform-state"
+    key            = "terraform.tfstate"
+    dynamodb_table = "dansali-techtestapp-terraform-state"
+    encrypt        = true
+  }
 }
 
 provider "aws" {
@@ -22,13 +30,13 @@ data "aws_subnet_ids" "main" {
 }
 
 resource "aws_security_group" "main" {
-  name        = "TechTestApp"
+  name        = "TechTestApp ${var.env}"
   description = "TechTestApp security stuff"
 
   vpc_id      = data.aws_vpc.main.id
 
   tags = {
-    Name = "TechTestApp"
+    Name = "TechTestApp ${var.env}"
   }
 
   lifecycle {
@@ -57,6 +65,14 @@ resource "aws_security_group" "main" {
       protocol = "tcp"
       cidr_blocks = [data.aws_vpc.main.cidr_block]
       description = "http in"
+  }
+
+  ingress {
+      from_port = 5432
+      to_port = 5432
+      protocol = "tcp"
+      cidr_blocks = [data.aws_vpc.main.cidr_block]
+      description = "postgres in private"
   }
 
   egress {
@@ -105,7 +121,7 @@ resource "aws_instance" "main" {
   associate_public_ip_address   = true
 
   tags = {
-    Name = "TechTestApp"
+    Name = "TechTestApp ${var.env}"
   }
 
   lifecycle {
@@ -118,18 +134,33 @@ resource "aws_instance" "main" {
     user        = "ec2-user"
   }
 
-  provisioner "local-exec" {
+  #provisioner "file" {
+  #  content     = data.template_file.techtestapp-config.rendered
+  #  destination = "app-instance/app/conf.toml"
+  #}
+
+  /*provisioner "local-exec" {
     command = <<EOT
       >ansible.ini;
       echo "[ansible]" | tee -a ansible.ini;
       echo "${aws_instance.main.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=aws" | tee -a ansible.ini;
       ansible-playbook -u ec2-user --private-key secret/aws -i ansible.ini ansible.yaml
     EOT
+  }*/
+}
+
+resource "null_resource" "local-conf-file" {
+  triggers = {
+    template = data.template_file.techtestapp-config.rendered
+  }
+
+  provisioner "local-exec" {
+    command = "echo '${data.template_file.techtestapp-config.rendered}' > app-instance/app/conf.toml"
   }
 }
 
-resource "aws_elb" "main-elb" {
-  name = "main-elb"
+resource "aws_elb" "techtestapp-elb" {
+  name = "${var.env}-techtestapp-elb"
 
   listener {
     instance_port     = 3000
@@ -157,7 +188,7 @@ resource "aws_elb" "main-elb" {
   connection_draining_timeout = 400
 
   tags = {
-    Name = "main-elb"
+    Name = "${var.env}-techtestapp-elb"
   }
 }
 
@@ -168,5 +199,49 @@ resource "aws_elb" "main-elb" {
 
 # Spit out the url for the LB
 output "load-balancer-url" {
-  value = aws_elb.main-elb.dns_name
+  value = aws_elb.techtestapp-elb.dns_name
+}
+
+resource "aws_db_instance" "main" {
+  final_snapshot_identifier = "${var.env}techtestappdb"
+  allocated_storage = 20
+  storage_type      = "gp2"
+  engine            = "postgres"
+  instance_class    = "db.t2.medium"
+  name              = "${var.env}techtestappdb"
+  username          = var.dbusername
+  password          = var.dbpassword
+}
+
+data "template_file" "techtestapp-config" {
+  template = file("techtestapp-conf.tmpl")
+
+  vars = {
+    databaseusername  = var.dbusername
+    databasepassword  = var.dbpassword
+
+    dbname            = "${var.env}techtestappdb"
+    dbhost            = aws_db_instance.main.address
+    dbport            = aws_db_instance.main.port
+  }
+}
+
+variable "env" {
+  type = string
+  description = "Environment!"
+}
+
+variable "dbusername" {
+  type = string
+  description = "Database username"
+}
+
+variable "dbpassword" {
+  type = string
+  description = "Database password"
+}
+
+variable "instance_count" {
+  type = number
+  description = "Scale instances"
 }

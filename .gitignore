@@ -7,4 +7,7 @@ credentials
 .terraform
 *.ini
 app-instance/app/output/*
+app-instance/app/conf.toml
 *output.json
+config.tfvars
+state

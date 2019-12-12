@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Set gopath if it doesn't exist.
 if [ -z "$GOPATH" ]; then
 	export GOPATH="$HOME/go"
 fi
@@ -20,9 +21,12 @@ chmod +x build.sh
 ./build.sh
 cd $LOCATION
 
-cp -R $GOPATH/src/github.com/vibrato/TechTestApp/dist/* .
+mkdir -p output
+rm -rf output/*
+cp -R $GOPATH/src/github.com/vibrato/TechTestApp/dist/* output
 
-rm -rf output/conf.toml
+cd output
+rm -rf conf.toml
 cp /tmp/conf.toml .
 
 ./TechTestApp serve
