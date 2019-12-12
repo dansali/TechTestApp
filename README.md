@@ -57,9 +57,8 @@ $ ./execute_terraform.sh
 8) To destroy
 
 ```
-$ terraform destroy -var-file=config.tfvars
-$ cd setup
-$ terraform destroy -var-file=../config.tfvars
+$ chmod +x destroy_terraform.sh
+$ ./destroy_terraform.sh
 ```
 
 ### Developed on
