@@ -11,7 +11,7 @@ if [ ! -f "setup/state" ]; then
     cd ..
 fi
 
-terraform init
+terraform init -backend-config=config.tfvars
 terraform validate
 terraform plan -out state -var-file=config.tfvars
 terraform apply state

@@ -7,8 +7,9 @@ provider "aws" {
 # Let's create our bucket to store our terraform state
 # We are encrypting the bucket to hopefully prevent leakage
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = var.dataname
+  bucket = var.bucket
   acl = "private"
+  force_destroy = true
 
   versioning {
     enabled = true
@@ -29,7 +30,7 @@ resource "aws_s3_bucket" "terraform_state" {
 
 # Creating a dynamodb table to lock/unlock the state for safety. Don't be running the same terraform script on 2 pcs at once :(
 resource "aws_dynamodb_table" "terraform_state_lock" {
-  name           = var.dataname
+  name           = var.dynamodb_table
   read_capacity  = 1
   write_capacity = 1
   hash_key       = "LockID"
@@ -40,7 +41,12 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
   }
 }
 
-variable "dataname" {
+variable "bucket" {
+  type = string
+  description = "Bucket/Dynamodb names"
+}
+
+variable "dynamodb_table" {
   type = string
   description = "Bucket/Dynamodb names"
 }

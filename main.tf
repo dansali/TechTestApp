@@ -3,9 +3,9 @@ terraform {
 
   backend "s3" {
     region         = "ap-southeast-2"
-    bucket         = "dansali-techtestapp-terraform-state"
+    #bucket         = var.dataname
     key            = "terraform.tfstate"
-    dynamodb_table = "dansali-techtestapp-terraform-state"
+    #dynamodb_table = var.dataname
     encrypt        = true
   }
 }
@@ -273,7 +273,12 @@ variable "dbpassword" {
   description = "Scale instances"
 }*/
 
-variable "dataname" {
+variable "bucket" {
+  type = string
+  description = "Bucket/Dynamodb names"
+}
+
+variable "dynamodb_table" {
   type = string
   description = "Bucket/Dynamodb names"
 }
