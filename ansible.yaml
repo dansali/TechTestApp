@@ -1,6 +1,6 @@
 ---
 - name: Waiting for SSH connection
-  hosts: main
+  hosts: ansible
   gather_facts: no
   tasks:
     - name: Waiting for SSH connection!
@@ -10,90 +10,23 @@
         delay: 5
       delegate_to: localhost
 
-- name: Set up dependencies
-  hosts: main
+- name: Set up the application
+  hosts: ansible
 
   tasks:
-  - name: RPM Import
-    become: yes
-    shell: rpm --import https://mirror.go-repo.io/centos/RPM-GPG-KEY-GO-REPO
-    args:
-      warn: no
-
-  - name: Install go into repo list
-    become: yes
-    shell: curl -s https://mirror.go-repo.io/centos/go-repo.repo | tee /etc/yum.repos.d/go-repo.repo
-    args:
-      warn: no
- 
-  - name: Install Packages
-    become: yes
-    yum:
-      name: "{{ packages }}"
-    vars:
-      packages:
-      - golang
-      - postgresql-server
-      - postgresql-contrib
-      - unzip
-      - python-psycopg2
-
-  - name: Enable postgresql service
-    become: yes
-    shell: chkconfig postgresql on
-
- # - name: Initialise postgresql service
- #   become: yes
- #   shell: postgresql-setup initdb
-
-  - name: Start postgresql service
-    become: yes
-    shell: systemctl start postgresql
-
-  - name: Copy service over
-    become: yes
-    copy:
-      src: techtestapp.service
-      dest: /etc/systemd/system/techtestapp.service
-  
-  - name: Create app folder
-    become: yes
+  - name: Create folder for the app instance
     file:
-      path: /home/ec2-user/app
+      path: /tmp/app-instance/
       state: directory
       mode: '0755'
-      owner: ec2-user
-      group: ec2-user
 
-  - name: Copy all files over
-    copy:
-      src: App.zip
-      dest: /home/ec2-user/app/
+  - name: Synch app-instance folder to remote server
+    synchronize:
+      mode: push
+      src: app-instance/
+      dest: /tmp/app-instance/
 
-  - name: Unzip file
-    shell: unzip -o App.zip
-    args:
-      chdir: /home/ec2-user/app
-      warn: no
- 
-  - name: create user and db
-    become: true
-    become_user: postgres
-    postgresql_user:
-      db: ec2-user
-      name: ec2-user
-      password: password123
-      role_attr_flags: SUPERUSER
-
-  - name: Init the app
-    shell: ./TechTestApp updatedb
-    args:
-      chdir: /home/ec2-user/app
-
-  - name: Enable service
-    become: yes
-    shell: chkconfig techtestapp on 
-
-  - name: Start service
-    become: yes
-    shell: systemctl start techtestapp
+  - name: Docker compose up!
+    docker_compose:
+      project_src: /tmp/app-instance/
+    register: output

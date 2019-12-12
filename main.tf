@@ -60,8 +60,8 @@ resource "aws_security_group" "main" {
   }
 
   ingress {
-      from_port = 3000
-      to_port = 3000
+      from_port = 8080
+      to_port = 8080
       protocol = "tcp"
       cidr_blocks = [data.aws_vpc.main.cidr_block]
       description = "http in"
@@ -97,6 +97,14 @@ resource "aws_security_group" "main" {
       protocol = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
       description = "http out for yum"
+  }
+
+  egress {
+      from_port = 8080
+      to_port = 8080
+      protocol = "tcp"
+      cidr_blocks = [data.aws_vpc.main.cidr_block]
+      description = "http out for lb from nginx"
   }
 }
 
@@ -139,14 +147,17 @@ resource "aws_instance" "main" {
   #  destination = "app-instance/app/conf.toml"
   #}
 
-  /*provisioner "local-exec" {
+  provisioner "local-exec" {
     command = <<EOT
       >ansible.ini;
       echo "[ansible]" | tee -a ansible.ini;
       echo "${aws_instance.main.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=aws" | tee -a ansible.ini;
-      ansible-playbook -u ec2-user --private-key secret/aws -i ansible.ini ansible.yaml
+      echo "[ansible:vars]" | tee -a ansible.ini;
+      echo "ansible_python_interpreter=/usr/bin/python3" | tee -a ansible.ini;
+
+      ansible-playbook -u ec2-user --private-key secret/aws -i ansible.ini ansible.yaml;
     EOT
-  }*/
+  }
 }
 
 resource "null_resource" "local-conf-file" {
@@ -163,7 +174,7 @@ resource "aws_elb" "techtestapp-elb" {
   name = "${var.env}-techtestapp-elb"
 
   listener {
-    instance_port     = 3000
+    instance_port     = 80
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
@@ -173,7 +184,7 @@ resource "aws_elb" "techtestapp-elb" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    target              = "HTTP:3000/"
+    target              = "HTTP:80/"
     interval            = 5
   }
 
@@ -208,6 +219,7 @@ resource "aws_db_instance" "main" {
   storage_type      = "gp2"
   engine            = "postgres"
   instance_class    = "db.t2.medium"
+  deletion_protection = true
   name              = "${var.env}techtestappdb"
   username          = var.dbusername
   password          = var.dbpassword

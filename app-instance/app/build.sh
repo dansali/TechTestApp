@@ -27,6 +27,6 @@ cp -R $GOPATH/src/github.com/vibrato/TechTestApp/dist/* output
 
 cd output
 rm -rf conf.toml
-cp /tmp/conf.toml .
+cp /tmp/app-instance/app/conf.toml .
 
 ./TechTestApp serve
