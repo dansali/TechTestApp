@@ -13,7 +13,7 @@ services:
       - backend
     ports:
       # App
-      - "80:80"
+      - "8080:8080"
 
   app:
     image: golang:latest
@@ -25,7 +25,7 @@ services:
 
     volumes:
       - ./app/build.sh:/tmp/build.sh
-      - ./app/conf.tmpl:/tmp/conf.toml
+      - ./app/conf.toml:/tmp/app-instance/app/conf.toml
 
     command: bash -c "chmod +x /tmp/build.sh && /bin/bash /tmp/build.sh"
 # Network configuration

@@ -120,7 +120,7 @@ data "aws_ami" "main" {
 
 resource "aws_instance" "main" {
   ami                       = data.aws_ami.main.id
-  instance_type             = "t2.medium"
+  instance_type             = "m4.xlarge"
 
   key_name                  = aws_key_pair.main.key_name
   subnet_id                 = sort(data.aws_subnet_ids.main.ids)[0]
@@ -151,7 +151,7 @@ resource "aws_instance" "main" {
     command = <<EOT
       >ansible.ini;
       echo "[ansible]" | tee -a ansible.ini;
-      echo "${aws_instance.main.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=aws" | tee -a ansible.ini;
+      echo "${aws_instance.main.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=secret/aws" | tee -a ansible.ini;
       echo "[ansible:vars]" | tee -a ansible.ini;
       echo "ansible_python_interpreter=/usr/bin/python3" | tee -a ansible.ini;
 
@@ -174,7 +174,7 @@ resource "aws_elb" "techtestapp-elb" {
   name = "${var.env}-techtestapp-elb"
 
   listener {
-    instance_port     = 80
+    instance_port     = 8080
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
@@ -184,7 +184,7 @@ resource "aws_elb" "techtestapp-elb" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    target              = "HTTP:80/"
+    target              = "HTTP:8080/"
     interval            = 5
   }
 
