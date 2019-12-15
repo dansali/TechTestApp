@@ -14,7 +14,6 @@ This respository consists of multiple tech stacks
 ### Requirements
 
 * Terraform 0.12+
-* Ansible 2.9+
 * Packer 1.4+
 * Git
 * Suggested OS: Linux/Mac
@@ -64,5 +63,4 @@ $ ./destroy_terraform.sh
 ### Developed on
 
 * Terraform v0.12.17
-* Ansible 2.9.1
 * Packer 1.4.5

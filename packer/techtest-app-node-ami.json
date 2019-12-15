@@ -42,8 +42,14 @@
         "sudo scl enable rh-python36 bash",
         "sudo yum -y install python36-setuptools",
         "sudo easy_install-3.6 pip",
-        "sudo pip3 install docker-compose"
+        "sudo pip3 install docker-compose",
+        "sudo yum -y install postgresql"
       ]
+    },
+    {
+      "type": "file",
+      "source": "../app-instance",
+      "destination": "/tmp"
     }
   ],
 

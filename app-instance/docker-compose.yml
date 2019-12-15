@@ -22,10 +22,15 @@ services:
         - backend
     ports:
         - "3000:3000"
-
     volumes:
       - ./app/build.sh:/tmp/build.sh
       - ./app/conf.toml:/tmp/app-instance/app/conf.toml
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
 
     command: bash -c "chmod +x /tmp/build.sh && /bin/bash /tmp/build.sh"
 # Network configuration

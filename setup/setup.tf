@@ -66,3 +66,13 @@ variable "dbpassword" {
   type = string
   description = "Database password"
 }
+
+variable "instance_count_min" {
+  type = number
+  description = "Scale instances min"
+}
+
+variable "instance_count_max" {
+  type = number
+  description = "Scale instances max"
+}
