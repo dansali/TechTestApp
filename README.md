@@ -55,7 +55,7 @@ $ chmod +x execute_terraform.sh
 $ ./execute_terraform.sh
 ```
 
-7) Wait until LB url is printed, app & rds might take a while to boot
+7) Wait until LB url is printed, app & rds might take a few minutes to boot
 
 8) To destroy
 
