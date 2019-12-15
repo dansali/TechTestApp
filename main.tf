@@ -170,6 +170,7 @@ data "template_file" "entrypoint" {
 
 # Scaling group for the app instances
 resource "aws_autoscaling_group" "app" {
+  name                = "techtestapp-${aws_launch_template.app.latest_version}"
   desired_capacity    = var.instance_count_min
   max_size            = var.instance_count_max
   min_size            = var.instance_count_min
@@ -207,7 +208,7 @@ resource "aws_elb" "techtestapp-elb" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    target              = "HTTP:8080/healthcheck/"
+    target              = "HTTP:8080/up/"
     interval            = 5
   }
 
@@ -243,31 +244,6 @@ resource "aws_db_instance" "main" {
   name                      = "${var.env}techtestappdb"
   username                  = var.dbusername
   password                  = var.dbpassword
-}
-
-# Template for conf.toml
-data "template_file" "techtestapp-config" {
-  template = file("techtestapp-conf.tmpl")
-
-  vars = {
-    databaseusername  = var.dbusername
-    databasepassword  = var.dbpassword
-
-    dbname            = "${var.env}techtestappdb"
-    dbhost            = aws_db_instance.main.address
-    dbport            = aws_db_instance.main.port
-  }
-}
-
-# Creates the conf.toml file with variables from rds + config.tfvars
-resource "null_resource" "local-conf-file" {
-  triggers = {
-    template = data.template_file.techtestapp-config.rendered
-  }
-
-  provisioner "local-exec" {
-    command = "echo '${data.template_file.techtestapp-config.rendered}' > app-instance/app/conf.toml"
-  }
 }
 
 # Variables to be read from config.tfvars

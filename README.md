@@ -10,6 +10,14 @@ This respository consists of multiple tech stacks
 * Nginx web server - Proxy for the app
 * Go lang container - Builds and runs the app
 
+### Features
+
+* Encryption for S3/DynamoDB/AMI/EBS
+* Auto scaling app instances
+* Tables arent dropped when new slaves spin up
+* App builds itself from source upon launch in container
+* Remote state file and lock on AWS
+
 ### Requirements
 
 * Terraform 0.12+
