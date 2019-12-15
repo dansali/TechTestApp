@@ -135,7 +135,6 @@ data "aws_ami" "main" {
 
 # Template for launching multiple app instances
 resource "aws_launch_template" "app" {
-  depends_on                = [null_resource.local-conf-file]
   name_prefix               = "app"
   image_id                  = data.aws_ami.main.id
   instance_type             = "m4.xlarge"
