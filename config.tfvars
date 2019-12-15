@@ -8,7 +8,5 @@ dbpassword = "changeme"
 bucket = "dansali-techtestapp-terraform-state-changeme"
 dynamodb_table = "dansali-techtestapp-terraform-state-changeme"
 
-db_delete_on_terminate = true
-
 instance_count_min = 2
 instance_count_max = 4
