@@ -5,7 +5,6 @@
 This respository consists of multiple tech stacks
 * Terraform - Builds AWS instances/resources
 * S3/DynamoDB - Holds remote state file/lock
-* Ansible - Configures the AWS EC2 instance
 * Packer - Builds the AMI for Terraform to deploy to EC2
 * Docker Composer - Spawns 2 docker containers on the EC2
 * Nginx web server - Proxy for the app
@@ -16,7 +15,12 @@ This respository consists of multiple tech stacks
 * Terraform 0.12+
 * Packer 1.4+
 * Git
-* Suggested OS: Linux/Mac
+* Suggested OS: Linux/Mac OSX
+
+### Install Terraform/Packer with Brew (For Mac OSX):
+
+* brew install terraform
+* brew install packer
 
 ### Installation
 
