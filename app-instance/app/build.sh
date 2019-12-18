@@ -32,7 +32,7 @@ cp -R $GOPATH/src/github.com/servian/TechTestApp/dist/* output
 
 cd output
 rm -rf conf.toml
-ln -s /tmp/app-instance/app/conf.toml conf.toml
+ln -s /tmp/conf.toml conf.toml
 
 echo "Installing psql"
 apt-get update
