@@ -4,13 +4,7 @@
       "type": "amazon-ebs",
       "region": "ap-southeast-2",
       "encrypt_boot": true,
-      "source_ami_filter": {
-        "filters": {
-          "tag:TechTestApp": "Clean-Updated"
-        },
-        "owners": ["self"],
-        "most_recent": true
-      },
+      "source_ami": "ami-04c87826f51872f21",
       "instance_type": "m4.xlarge",
       "ssh_username": "ec2-user",
       "ami_name": "techtest-app-node-{{isotime \"2006-01-02T1504\"}}",
@@ -18,13 +12,19 @@
         {
           "device_name": "/dev/sda1",
           "volume_size": 50,
-          "volume_type": "gp2",
-          "delete_on_termination": true
+          "volume_type": "io1",
+          "iops": 600,
+          "delete_on_termination": true,
+          "encrypted": false
         }
       ],
       "tags": {
         "TechTestApp": "App",
-        "Amazon_AMI_Management_Identifier": "techtest-app-node"
+        "Amazon_AMI_Management_Identifier": "techtest-app-node",
+        "Name": "techtest-app-node-{{isotime \"2006-01-02T1504\"}}"
+      },
+      "snapshot_tags": {
+        "Name": "techtest-app-node-{{isotime \"2006-01-02T1504\"}}"
       }
     }
   ],
@@ -33,10 +33,13 @@
     {
       "type": "shell",
       "inline": [
+        "sudo yum -y update",
+        "sudo yum -y install centos-release-scl",
         "sudo yum -y install yum-utils",
         "sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo",
         "sudo yum -y install device-mapper-persistent-data lvm2 docker-ce rh-python36 python36-setuptools postgresql",
-        "sudo yum -y groupinstall 'Development Tools'",
+        "sudo yum group mark install 'Development Tools'",
+        "sudo yum group update -y 'Development Tools'",
         "sudo usermod -aG docker $(whoami)",
         "sudo systemctl enable docker.service",
         "sudo scl enable rh-python36 bash",

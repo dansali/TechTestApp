@@ -22,6 +22,7 @@ This respository consists of multiple tech stacks
 
 * Terraform 0.12+
 * Packer 1.4+
+* Packer plugin: packer-post-processor-amazon-ami-management 0.7.0+
 * Git
 * Suggested OS: Linux/Mac OSX
 
@@ -76,7 +77,9 @@ $ ./destroy_terraform.sh
 
 * Terraform v0.12.17
 * Packer 1.4.5
+* Packer plugin: packer-post-processor-amazon-ami-management 0.7.0
 
 ### Built on
 
 * https://github.com/servian/TechTestApp
+* https://github.com/wata727/packer-post-processor-amazon-ami-management

@@ -143,7 +143,7 @@ resource "aws_launch_template" "app" {
   user_data                 = base64encode(data.template_file.entrypoint.rendered)
 
   network_interfaces {
-    associate_public_ip_address = true
+    associate_public_ip_address = false
     delete_on_termination       = true
     security_groups             = [aws_security_group.main.id]
   }
@@ -235,8 +235,9 @@ resource "aws_db_instance" "main" {
   #final_snapshot_identifier = "${var.env}techtestappdb"
   skip_final_snapshot       = true
   vpc_security_group_ids    = [aws_security_group.main.id]
-  allocated_storage         = 20
+  allocated_storage         = 10
   storage_type              = "gp2"
+  storage_encrypted         = true
   engine                    = "postgres"
   instance_class            = "db.t2.medium"
   #deletion_protection      = true
