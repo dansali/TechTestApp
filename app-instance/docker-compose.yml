@@ -24,6 +24,7 @@ services:
         - "3000:3000"
     volumes:
       - ./app/build.sh:/tmp/build.sh
+      - ./app/conf.toml:/tmp/conf.toml
     environment:
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_PORT=${DATABASE_PORT}
