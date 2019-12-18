@@ -1,8 +1,11 @@
 #!/bin/bash
 
 # Freshly builds clean amis
+
+# Grab creds file
 export AWS_SHARED_CREDENTIALS_FILE=$(pwd)/secret/credentials.ini
 
+LOCATION=$(pwd)
 # if plugin not installed
 if [ ! -f ~/.packer.d/plugins/packer-post-processor-amazon-ami-management ]; then
     echo "Installing packer amazon ami management!"
@@ -12,7 +15,7 @@ if [ ! -f ~/.packer.d/plugins/packer-post-processor-amazon-ami-management ]; the
     unzip -j /tmp/packer-post-processor-amazon-ami-management_0.7.0_darwin_amd64.zip -d ~/.packer.d/plugins
 fi
 
-cd packer
+cd $LOCATION/packer
 packer validate centos7-updated-ami.json
 packer validate techtest-app-node-ami.json
 packer build centos7-updated-ami.json
