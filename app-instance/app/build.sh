@@ -17,18 +17,18 @@ if ! [ -x "$(command -v dep)" ]; then
 fi
 
 echo "Installing the app"
-go get -d github.com/vibrato/VibratoTechTest
+go get -d github.com/servian/TechTestApp
 
 echo "Building the app"
 LOCATION=$(pwd)
-cd $GOPATH/src/github.com/vibrato/TechTestApp
+cd $GOPATH/src/github.com/servian/TechTestApp
 chmod +x build.sh
 ./build.sh
 
 cd $LOCATION
 mkdir -p output
 rm -rf output/*
-cp -R $GOPATH/src/github.com/vibrato/TechTestApp/dist/* output
+cp -R $GOPATH/src/github.com/servian/TechTestApp/dist/* output
 
 cd output
 rm -rf conf.toml
