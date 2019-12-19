@@ -143,7 +143,7 @@ resource "aws_launch_template" "app" {
   user_data                 = base64encode(data.template_file.entrypoint.rendered)
 
   network_interfaces {
-    associate_public_ip_address = false
+    associate_public_ip_address = true
     delete_on_termination       = true
     security_groups             = [aws_security_group.main.id]
   }
