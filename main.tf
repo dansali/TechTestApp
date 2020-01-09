@@ -3,6 +3,7 @@ terraform {
 
   # Saves the state into s3 bucket
   backend "s3" {
+    bucket         = var.bucket
     region         = "ap-southeast-2"
     key            = "terraform.tfstate"
     encrypt        = true
